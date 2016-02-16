@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <title>Tally Ho!</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="public/css/style.css">
+</head>
+<body>
+<div id='container'></div>
+
+<script id="template" type="text/ractive">
+<div class="player {{#if isGameFinish}}
+                finishGame
+            {{else}}
+                {{#if (gamePhase!='gameStart' || turn == 0)}} 
+                    onTurn 
+                {{/if}}
+            {{/if}}" id='blue'>
+    <div class='content-container'>
+        {{#if gamePhase == 'pickName'}}
+            <tr>
+                <input type='text' value={{player1name}} required placeholder='Player Name'>
+                <button type="submit" on-click="p1ready"> Ready </button>
+            </tr>
+        {{/if}}
+        {{#if gamePhase != 'pickName'}}
+            {{#if isGameFinish}}
+                <h2 class='playerActive'>{{players.0.name}}</h2>
+            {{elseif turn==0}}
+                <h2 class='playerActive'>{{players.0.name}}</h2>
+            {{else}}
+                <h4>{{players.0.name}}</h4>
+            {{/if}}
+        {{/if}}
+        {{#if gamePhase == 'gameStart'}}
+        <table class="scoreBoard">
+            <tr>
+            {{#each imgUrls[0]}}
+                <th> <img src="{{this}}"> </th>
+            {{/each}}
+            </tr>
+            <tr>
+             {{#each blueHand}}
+                <td> {{this}} </td>
+            {{/each}}
+            </tr>
+            <tr>
+                <td colspan="{{imgUrls[0].length}}"> {{blueHandPoint}} </td>
+            </tr>
+            <tr>
+            <td colspan="{{imgUrls[0].length}}"> Total Moves </td>
+            </tr>
+            <tr>
+            <td colspan="{{imgUrls[0].length}}"> {{players[0].moves}} </td>
+            </tr>
+            {{#if isAllVisible}}
+            <tr>
+                <td colspan="{{imgUrls[0].length}}"> Remaining Moves </td>
+            </tr>
+            <tr>
+                <td colspan="{{imgUrls[0].length}}"> <b> {{players.0.remainingMoves}} </b> </td>
+            </tr>
+            {{/if}}
+        </table>
+        {{/if}}
+     </div>
+</div>
+<div class="game-area">
+    {{#if gamePhase == 'gameInit'}}
+        <a href='#'><img src="public/img/start.png" on-click="tilePlacement" alt="Click to Start Game" height="540" width="540"></a>
+    {{else}}
+        {{#if gamePhaze != 'gameInit' && isGameFinish}}
+            <a href=''><img src="public/img/finish.png" on-click="tilePlacement" alt="Game Finished" height="540" width="540"></a>
+        {{else}}
+            <table>
+                {{#each board:i}}
+                    <tr>
+                    {{#each board[i]:j}}
+                        <td>
+                            {{#if this}} 
+                            <div id="{{i + '.' + j}}" class="tile" 
+                                on-click='
+                                    {{#if this.visible == false}}
+                                        {{#if selectedTile == null}}
+                                            showTile 
+                                        {{/if}}
+                                    {{else}} 
+                                        {{#if selectedTile == null}}
+                                            {{#if players[turn].remainingMoves != 0}} 
+                                                selectTile 
+                                            {{/if}}
+                                        {{else}}
+                                            {{#if players[turn].remainingMoves != 0}} hunt {{/if}}
+                                        {{/if}}
+                                    {{/if}}:{{i}},{{j}}'
+                                style="
+                                    {{#if this.visible}} 
+                                        background-image:url('{{this.imageUrl}}') 
+                                    {{else}} 
+                                        background-image:url('public/img/back.jpg')
+                                    {{/if}}
+                                "></div>
+                            {{else}}
+                                {{#if selectedTile != null}}
+                                    <div id="{{i + '.' + j}}" on-click="move:{{i}},{{j}}" class="emptyCell"></div>
+                                {{/if}}
+                            {{/if}}
+                        </td>
+                    {{/each}}
+                    </tr>
+                {{/each}}
+            </table>
+            {{/if}}
+        {{/if}}
+</div>
+<div class='player
+            {{#if isGameFinish}}
+                finishGame
+            {{else}}
+                {{#if (gamePhase!='gameStart' || turn == 1)}} 
+                    onTurn 
+                {{/if}}
+            {{/if}}' id='brown'>
+    <div class='content-container'>
+        {{#if gamePhase == 'pickName'}}
+            <tr>
+                <input value={{player2name}} type="text" required='required' placeholder='Player Name'>
+                <button on-click="p2ready"> Ready </button>
+            </tr>
+        {{/if}}
+        {{#if gamePhase != 'pickName'}}
+            {{#if isGameFinish}}
+                <h2 class='playerActive'>{{players.1.name}}</h2>
+            {{elseif turn==1}}
+                <h2 class='playerActive'>{{players.1.name}}</h2>
+            {{else}}
+                <h4>{{players.1.name}}</h4>
+            {{/if}}
+        {{/if}}
+        {{#if gamePhase == 'gameStart'}}
+        <table class="scoreBoard">
+            <tr>
+            {{#each imgUrls[1]}}
+                <th> <img src="{{this}}"> </th>
+            {{/each}}
+            </tr>
+            <tr>
+             {{#each brownHand}}
+                <td> {{this}} </td>
+            {{/each}}
+            </tr>
+            <tr>
+                <td colspan="{{imgUrls[1].length}}"> {{brownHandPoint}} </td>
+            </tr>
+            <tr>
+            <td colspan="{{imgUrls[1].length}}"> Total Moves </td>
+            </tr>
+            <tr>
+            <td colspan="{{imgUrls[1].length}}"> {{players[1].moves}} </td>
+            </tr>
+            {{#if isAllVisible}}
+            <tr>
+                <td colspan="{{imgUrls[1].length}}"> Remaining Moves </td>
+            </tr>
+            <tr>
+                <td colspan="{{imgUrls[1].length}}"> <b> {{players.1.remainingMoves}} </b></td>
+            </tr>
+            {{/if}}
+        </table>
+        {{/if}}
+     </div>
+</div>
+</script>
+<script src="Tile.js"></script>
+<script src="TallyHo.js"></script>
+<script src="public/js/ractive.js"></script>
+<script src="Player.js"></script>
+<script src="Game.js"></script>
+</body>
+</html>
